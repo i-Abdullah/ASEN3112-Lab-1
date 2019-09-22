@@ -35,5 +35,36 @@ T_max_open = 20; % lbs -in
 Tau_max_open = 7800; % psi
 FS_open = 2.8; % factor of safety.
 
-%%
+%% read data:
 
+%addpath('./Data'); % add path of data files
+
+% to use importdata, fopen must be issued first
+fopen('400inclosed.txt');
+fopen('20inopen.txt');
+
+% now import data safely
+Data_closed = importdata('400inclosed.txt'); %import data
+Data_open = importdata('20inopen.txt'); %import data
+
+
+% close open handles
+fclose('all');
+
+% extract data
+
+time_closed = Data_closed.data(:,1); % in sec
+Torsinal_angle_closed = Data_closed.data(:,2); % in deg
+Epsilon_closed = Data_closed.data(:,3); % in deg
+Torque_closed = Data_closed.data(:,4); % in-lbf
+Axial_closed = Data_closed.data(:,5); % in
+
+
+time_open = Data_open.data(:,1); % in sec
+Torsinal_angle_open = Data_open.data(:,2); % in deg
+Epsilon_open = Data_open.data(:,3); % in deg
+Torque_open = Data_open.data(:,4); % in-lbf
+Axial_open = Data_open.data(:,5); % in
+
+
+%%
