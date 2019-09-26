@@ -73,7 +73,7 @@ time_closed = time_closed - time_closed(1);
 time_open = time_open - time_open(1);
 
 
-Theortical_rigidity_closed_exact = G .* (1/2) * pi * ( (De_closed/2) - (De_closed - t_closed )).^2; % exact theortical rigidity for closed only
+Theortical_rigidity_closed_exact = G .* (1/2) * pi * ( (De_closed/2)^4 - ((De_closed/2) - t_closed )^4); % exact theortical rigidity for closed only
 
 J_open = (1/3) * (2*pi*(De_open/2)) * (t_open)^3 ; % polar moment of inertia
 J_Closed = ( 4 * ((pi)*(((De_closed - t_closed)/2)^2))^2 * t_closed ) ./ ( 2 * pi * ((De_closed - t_closed)/2))  ; % polar moment of inertia
