@@ -144,18 +144,75 @@ title('Shear Strain of a closed circular cross section specimen');
 legend('\gamma by extensometer','\gamma by torsional angle')
 
 
-% do line fit:
+%% least squares fit
 
-[ p S ] = polyfit(SS_C_Epsilon,Torque_closed,1);
-Rigidity_C_Epsilon = abs(p(1))*(De_closed/2);
+% polyfit will do lest squares linear fit.
+
+% in polyval Evaluate the first-degree polynomial
+% fit in p at the points in x. Specify the error estimation
+% structure as the third input so that polyval calculates an
+% estimate of the standard error. The standard error estimate is
+% returned in delta.
+
+% 
+[ p S ] = polyfit(SS_C_Epsilon,Torque_closed,1); % get fit
+Rigidity_C_Epsilon = abs(p(1))*(De_closed/2); % estimate rigidity
+[y_fit,delta] = polyval(p,SS_C_Epsilon,S);
+Err_Rigidity_C_Epsilon = mean(delta);
+Fit_SS_C_Epsilon = @(x) p(1)*x + p(2) ;
 
 [ p S ] = polyfit(SS_C_Twist,Torque_closed,1);
 Rigidity_C_Twist = abs(p(1))*(De_closed/2);
+[y_fit,delta] = polyval(p,SS_C_Twist,S);
+Err_Rigidity_C_Twist = mean(delta);
+Fit_SS_C_Twist = @(x) p(1)*x + p(2) ;
+
 
 [ p S ] = polyfit(SS_O_Epsilon,Torque_open,1);
 Rigidity_O_Epsilon = abs(p(1))*(De_open/2);
+[y_fit,delta] = polyval(p,SS_O_Epsilon,S);
+Err_Rigidity_O_Epsilon = mean(delta);
+Fit_SS_O_Epsilon = @(x) p(1)*x + p(2) ;
+
 
 [ p S ] = polyfit(SS_O_Twist,Torque_open,1);
 Rigidity_O_Twist = abs(p(1))*(De_open/2);
+[y_fit,delta] = polyval(p,SS_O_Twist,S);
+Err_Rigidity_O_Twist = mean(delta);
+Fit_SS_O_Twist = @(x) p(2)*x + p(1) ;
 
-%%
+
+%% compute relative error:
+
+% relative error to theortical rigidity for exact method
+rel_CTW_Epsilon_exact = abs(Theortical_rigidity_closed_exact-Rigidity_C_Epsilon)./Theortical_rigidity_closed_exact;
+rel_CTW_Twist_exact = abs(Theortical_rigidity_closed_exact-Rigidity_C_Twist)./Theortical_rigidity_closed_exact;
+
+rel_CTW_Epsilon = abs(Theortical_rigidity_CTW-Rigidity_C_Epsilon)./Theortical_rigidity_CTW;
+rel_CTW_Twist= abs(Theortical_rigidity_CTW-Rigidity_C_Twist)./Theortical_rigidity_CTW;
+
+rel_OTW_Epsilon = abs(Theortical_rigidity_OTW-Rigidity_O_Epsilon)./Theortical_rigidity_OTW;
+rel_OTW_Twist= abs(Theortical_rigidity_OTW-Rigidity_O_Twist)./Theortical_rigidity_OTW;
+
+
+%% output results to table
+
+
+Method = {'CTW-Exact';'CTW';'OTW'};
+Theortical = [Theortical_rigidity_closed_exact; Theortical_rigidity_CTW; Theortical_rigidity_OTW];
+Extensometer = { 'N/A';Rigidity_C_Epsilon;Rigidity_O_Epsilon};
+TwistAngle = { 'N/A';Rigidity_C_Twist;Rigidity_O_Twist};
+Extensometer_fit_err = { 'N/A';Err_Rigidity_C_Epsilon;Err_Rigidity_O_Epsilon};
+TwistAngle_fit_err = { 'N/A';Err_Rigidity_C_Twist;Err_Rigidity_O_Twist};
+
+
+
+Extensometer_relative_err = { rel_CTW_Epsilon_exact ; rel_CTW_Epsilon ; rel_OTW_Epsilon };
+TwistAngle_relative_err = { rel_CTW_Twist_exact ; rel_CTW_Twist ; rel_OTW_Twist };
+
+
+Results = table(Method,Theortical,Extensometer,TwistAngle,Extensometer_fit_err,TwistAngle_fit_err,Extensometer_relative_err,TwistAngle_relative_err)
+fprintf('Note 1: all torsional rigidities are in psi-in^4')
+fprintf('\n')
+fprintf('Note 2: convert error to %% by multiplying by 100')
+fprintf('\n')
