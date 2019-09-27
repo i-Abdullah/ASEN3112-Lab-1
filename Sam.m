@@ -1,3 +1,4 @@
+
 %% Info:
 
 % this code is post-data collection analysis for two tubes, one is open and
@@ -92,7 +93,7 @@ twist_angle_open = deg2rad(twist_angle_open);
 
 
 
-%% backgroun:
+%% background:
 
 %{
 
@@ -105,22 +106,6 @@ it's also the case that for the exact method (I think it holds for both OTW
 and CTW) that the shear strain = ( T*roh ) / (GJ) where roh is radial
 distance, so if we have plots for T on Y and Shear strain on X if we take
 dslope of that (i.e. T/Y)  * R it'll also be the rigidity :)
-
-
-UPDATES:
-
-dphi/dx = T / (GJ) always.
-
-Phi = ( shear Strain * L ) / t -- open thin wall
-Phi = ( shear Strain * L ) / Re -- closed thin wall
-
-we can get shear strain the above equations.
-
-this means also that for :
-
-shear strain / t = T / (GJ) -- open thin wall
-shear strain / Re = T / (GJ) -- closed thin wall
-
 %}
 %% Closed specimen:
 
@@ -134,47 +119,35 @@ SS_C_Epsilon = shear_strain_closed;  % Shear strain, closed;
 SS_C_Twist = (twist_angle_closed ./ L_closed) .* (De_closed/2 );
 
 % Shear strain = SS, O = Open.
-SS_O_Epsilon = shear_strain_open;  % Shear strain, closed;
-SS_O_Twist = (twist_angle_open ./ L_open) .* (t_open);
-
-
-% because there are some issues with the data, we will exclude what's not
-% used:
-
-% include from 1 all the way up to this index
-Exclude_i = find(Torque_closed==max(Torque_closed)) - 9000;
-
-
+SS_O_Epsilon = shear_strain_open;  % Shear strain, open;
+SS_O_Twist = (twist_angle_open ./ L_open) .* (De_open/2 );
 
 
 figure(1)
 
 plot(Torque_closed,SS_C_Epsilon,'k');
-hold('on')
-plot(Torque_closed(1:Exclude_i),SS_C_Twist(1:Exclude_i),'b','LineWidth',2);
-plot(Torque_closed(Exclude_i:end),SS_C_Twist(Exclude_i:end),'.-r','LineWidth',1);
-grid minor
-
-xlabel('Torque [lbs-in]');
-ylabel('\gamma [unitless]');
-title('Shear Strain of a closed circular cross section specimen');
-legend('\gamma by extensometer','\gamma by torsional angle','Excluded data')
-
-
-figure(2)
-
-plot(Torque_open,SS_O_Epsilon,'k');
 hold on
-plot(Torque_open,SS_O_Twist,'r','LineWidth',2);
+%plot(Torque_closed,SS_C_Twist,'r','LineWidth',2);
+plot(Torque_closed(1:find(Torque_closed==max(Torque_closed))),SS_C_Twist(1:find(Torque_closed==max(Torque_closed))),'r','LineWidth',2);
 xlabel('Torque [lbs-in]');
 ylabel('\gamma [unitless]');
 title('Shear Strain of a closed circular cross section specimen');
 legend('\gamma by extensometer','\gamma by torsional angle')
 
 
+figure(2)
+
+plot(Torque_open(1:end-7000),SS_O_Epsilon(1:end-7000),'k');
+hold on
+plot(Torque_open,SS_O_Twist,'r','LineWidth',2);
+xlabel('Torque [lbs-in]');
+ylabel('\gamma [unitless]');
+title('      Shear Strain of an open circular cross section specimen');
+legend('\gamma by extensometer','\gamma by torsional angle')
+
 %% least squares fit
 
-% polyfit will do lest squares linear fit.
+% polyfit will do least squares linear fit.
 
 % in polyval Evaluate the first-degree polynomial
 % fit in p at the points in x. Specify the error estimation
@@ -189,32 +162,56 @@ Rigidity_C_Epsilon = abs(p(1))*(De_closed/2); % estimate rigidity
 Err_Rigidity_C_Epsilon = mean(delta);
 Fit_SS_C_Epsilon = @(x) p(1)*x + p(2) ;
 
-% [ p S ] = polyfit(SS_C_Twist,Torque_closed,1);
-% Rigidity_C_Twist = abs(p(1))*(De_closed/2);
-% [y_fit,delta] = polyval(p,SS_C_Twist,S);
-% Err_Rigidity_C_Twist = mean(delta);
-% Fit_SS_C_Twist = @(x) p(1)*x + p(2) ;
 
-[ p S ] = polyfit(SS_C_Twist(1:Exclude_i),Torque_closed(1:Exclude_i),1);
+[ p S ] = polyfit(SS_C_Twist,Torque_closed,1);
 Rigidity_C_Twist = abs(p(1))*(De_closed/2);
 [y_fit,delta] = polyval(p,SS_C_Twist,S);
 Err_Rigidity_C_Twist = mean(delta);
 Fit_SS_C_Twist = @(x) p(1)*x + p(2) ;
 
 
-
 [ p S ] = polyfit(SS_O_Epsilon,Torque_open,1);
-Rigidity_O_Epsilon = abs(p(1))*(t_open);
+Rigidity_O_Epsilon = abs(p(1))*(De_open/2);
 [y_fit,delta] = polyval(p,SS_O_Epsilon,S);
 Err_Rigidity_O_Epsilon = mean(delta);
 Fit_SS_O_Epsilon = @(x) p(1)*x + p(2) ;
 
 
 [ p S ] = polyfit(SS_O_Twist,Torque_open,1);
-Rigidity_O_Twist = abs(p(1))*(t_open);
+Rigidity_O_Twist = abs(p(1))*(De_open/2);
 [y_fit,delta] = polyval(p,SS_O_Twist,S);
 Err_Rigidity_O_Twist = mean(delta);
 Fit_SS_O_Twist = @(x) p(2)*x + p(1) ;
+
+
+
+figure(3)
+xlabels = categorical({'GJ Closed Epsilon','GJ Closed Twist','GJ Open Epsilon','GJ Open Twist'});
+xlabels = reordercats(xlabels,{'GJ Closed Epsilon','GJ Closed Twist','GJ Open Epsilon','GJ Open Twist'});
+barplot(:,1) = bar(xlabels,[Rigidity_C_Epsilon,Rigidity_C_Twist,Rigidity_O_Epsilon,Rigidity_O_Twist]);
+hold on
+avg_GJ_Closed = (Rigidity_C_Epsilon+Rigidity_C_Twist)/2;
+avg_GJ_Open = (Rigidity_O_Epsilon+Rigidity_O_Twist)/2;
+barplot(:,2) = plot(xlim, [avg_GJ_Closed avg_GJ_Closed], 'r');
+barplot(:,3) = plot(xlim,[avg_GJ_Open avg_GJ_Open], 'k');
+ylabel('Torsinal Rigidity')
+title('Torsinal Rigidity for Different Shafts')
+%{
+linex = [0,10];
+plot(linex,[Rigidity_C_Epsilon,Rigidity_C_Epsilon]);
+hold on
+plot(linex,[Rigidity_C_Twist,Rigidity_C_Twist]);
+plot(linex,[Rigidity_O_Epsilon,Rigidity_O_Epsilon]);
+plot(linex,[Rigidity_O_Twist,Rigidity_O_Twist]);
+
+
+xlabel('');
+xlim([0,10])
+ylabel('Torsinal Rigidity');
+title('Shear Strain of an open circular cross section specimen');
+legend('\gamma by extensometer','\gamma by torsional angle')
+%}
+
 
 
 %% compute relative error:
