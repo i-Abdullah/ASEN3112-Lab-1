@@ -3,6 +3,14 @@
 % this code is post-data collection analysis for two tubes, one is open and
 % one is closed, for more info, go to /Info
 
+%% ASEN 3112 Experimental Lab 1
+% Author: Abdulla Al Ameri
+% Created: 09/20/2019
+% Collaborators: Cameron Humphreys, Megan Jones
+
+% This code is post-data collection analysis for two test specimens. For more info, go to /Info.
+
+
 %% housekeeping
 
 clear
@@ -29,6 +37,7 @@ FS_closed = mean([ 2.3 2.6]); % given in lab doc as range, so took the mean.
 % everything same as closed, we assume cut is negligible :)
 
 De_open = 3/4 ; % in, exterior daiamter
+De_open = (5/16)*2; 
 t_open = 1/16 ; % in, thickness
 L_open = 13 ; % inches, measured in lab.
 T_max_open = 20; % lbs -in
