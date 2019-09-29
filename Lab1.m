@@ -30,7 +30,7 @@ L_closed = 13 ; % inches, measured in lab.
 T_max_closed = 400; % (lbs-in), maximum torque
 Tau_max_closed = 8620; % psi, max shear stress
 FS_closed = mean([ 2.3 2.6]); % given in lab doc as range, so took the mean.
-
+L_closed = 7/16 * 8 ; % inches, measured in lab.
 
 
 % open thin wall specimen
@@ -43,6 +43,7 @@ L_open = 13 ; % inches, measured in lab.
 T_max_open = 20; % lbs -in
 Tau_max_open = 7800; % psi
 FS_open = 2.8; % factor of safety.
+L_open = 7/16 * 8;
 
 %% read data:
 
@@ -151,8 +152,7 @@ SS_O_Twist = (twist_angle_open ./ L_open) .* (t_open);
 % used:
 
 % include from 1 all the way up to this index
-Exclude_i = find(Torque_closed==max(Torque_closed)) - 9000;
-
+Exclude_i = find(Torque_closed==max(Torque_closed)) - 12000 ;
 
 
 
@@ -177,7 +177,7 @@ hold on
 plot(Torque_open,SS_O_Twist,'r','LineWidth',2);
 xlabel('Torque [lbs-in]');
 ylabel('\gamma [unitless]');
-title('Shear Strain of a closed circular cross section specimen');
+title('Shear Strain of a open circular cross section specimen');
 legend('\gamma by extensometer','\gamma by torsional angle')
 
 
